@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>محطة 2 – لعبة الإسراء والمعراج</title>
+
+    <style>
+        :root {
+            --bg: #070b16;
+            --card: #0b1224;
+            --border: rgba(255,255,255,.15);
+            --text: #e9eefc;
+            --muted: #a9b4d6;
+            --accent: #ffd43b;
+            --ok: #2ecc71;
+            --bad: #ff6b6b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            min-height: 100vh;
+            padding-top: 70px; /* مساحة للشريط العلوي */
+            background: radial-gradient(1000px 600px at 15% 10%, rgba(116,167,255,.18), transparent 55%), radial-gradient(900px 550px at 85% 20%, rgba(110,231,255,.12), transparent 55%), var(--bg);
+            color: var(--text);
+            font-family: system-ui,Segoe UI,Arial;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 20px;
+        }
+
+        /* ===== الشريط العلوي ===== */
+        .topBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: rgba(11,18,36,.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+
+        .topBarInner {
+            max-width: 900px;
+            margin: auto;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .homeLink {
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 15px;
+            color: #071023;
+            background: linear-gradient(135deg,#ffe066,#ffd43b);
+            padding: 8px 18px;
+            border-radius: 999px;
+            box-shadow: 0 8px 22px rgba(255,212,59,.35);
+        }
+
+        .gameBox {
+            width: 100%;
+            max-width: 760px;
+            background: rgba(11,18,36,.92);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 20px 55px rgba(0,0,0,.55);
+        }
+
+        .topRow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .title {
+            font-weight: 950;
+            color: var(--accent);
+            font-size: 18px;
+        }
+
+        .counter {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .question {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 14px;
+            font-size: 17px;
+            line-height: 1.9;
+        }
+
+        .answers {
+            display: grid;
+            gap: 12px;
+        }
+
+            .answers button {
+                background: transparent;
+                border: 1px solid rgba(255,255,255,.16);
+                color: var(--text);
+                padding: 14px 12px;
+                border-radius: 14px;
+                cursor: pointer;
+                font-size: 15px;
+                transition: .15s;
+                text-align: right;
+            }
+
+                .answers button:hover {
+                    background: rgba(255,255,255,.06)
+                }
+
+                .answers button.selected {
+                    border-color: rgba(255,212,59,.85);
+                    box-shadow: 0 10px 26px rgba(255,212,59,.14);
+                }
+
+                .answers button.correct {
+                    background: rgba(46,204,113,.14);
+                    border-color: var(--ok);
+                }
+
+                .answers button.wrong {
+                    background: rgba(255,107,107,.14);
+                    border-color: var(--bad);
+                }
+
+        .bottomRow {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .scoreBox {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 850;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-weight: 950;
+        }
+
+        .btnNav {
+            background: rgba(255,255,255,.08);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,.16);
+        }
+
+            .btnNav:disabled {
+                opacity: .45;
+                cursor: not-allowed;
+            }
+
+        .btnPrimary {
+            background: linear-gradient(135deg,#ffe066,#ffd43b);
+            color: #071023;
+        }
+
+        .btnGhost {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid rgba(255,255,255,.16);
+        }
+
+        .note {
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== الشريط العلوي ===== -->
+    <div class="topBar">
+        <div class="topBarInner">
+            <a href="index.html" class="homeLink">الصفحة الرئيسية</a>
+        </div>
+    </div>
+
+    <div class="gameBox">
+        <div class="topRow">
+            <div class="title">🎮 لعبة أسئلة الإسراء والمعراج</div>
+            <div class="counter" id="counter">سؤال 1 من 1</div>
+        </div>
+
+        <div class="question" id="question">...</div>
+        <div class="answers" id="answers"></div>
+
+        <div class="bottomRow">
+            <div class="scoreBox">النقاط: <span id="score">0</span> / <span id="total">0</span></div>
+
+            <div class="controls">
+                <button class="btn btnNav" id="prevBtn" onclick="prevQuestion()">السابق</button>
+                <button class="btn btnPrimary" id="nextBtn" onclick="nextQuestion()">التالي</button>
+                <button class="btn btnGhost" onclick="resetGame()">اعادة</button>
+            </div>
+        </div>
+
+        <div class="note" id="note"></div>
+    </div>
+
+    <script>
+        /* ===== بنك اسئلة (كثير) ===== */
+        const bank = [
+            { q: "ما المقصود بالاسراء", a: ["الانتقال من المسجد الحرام الى المسجد الاقصى", "الصعود الى السماوات", "الهجرة الى المدينة", "نزول الوحي"], c: 0 },
+            { q: "ما المقصود بالمعراج", a: ["الانتقال من مكة الى القدس", "الصعود من المسجد الاقصى الى السماوات العلا", "الذهاب الى الطائف", "الهجرة الى الحبشة"], c: 1 },
+            { q: "من اين بدأت رحلة الاسراء", a: ["المسجد الاقصى", "غار حراء", "المسجد الحرام", "بيت المقدس"], c: 2 },
+            { q: "الى اين انتهت مرحلة الاسراء", a: ["الى المدينة", "الى الطائف", "الى المسجد الاقصى", "الى السماء السابعة"], c: 2 },
+            { q: "ما اسم الدابة التي ركبها النبي ﷺ", a: ["البراق", "الناقة", "الجمل", "الفرس"], c: 0 },
+            { q: "من الذي رافق النبي ﷺ في الرحلة حسب الروايات المشهورة", a: ["جبريل عليه السلام", "ميكائيل عليه السلام", "اسرافيل عليه السلام", "ملك الموت"], c: 0 },
+            { q: "اين فرضت الصلاة", a: ["في مكة", "في المدينة", "في السماء", "في غار حراء"], c: 2 },
+            { q: "كم عدد الصلوات المفروضة", a: ["خمس", "ثلاث", "سبع", "عشر"], c: 0 },
+            { q: "كانت الصلوات في البداية", a: ["خمسين ثم خففت الى خمس", "خمس ثم زادت الى خمسين", "عشر ثم خففت الى خمس", "خمسين ثم خففت الى ثلاث"], c: 0 },
+            { q: "ذكر الاسراء صراحة في القران في", a: ["سورة الاسراء", "سورة النجم", "سورة الفاتحة", "سورة البقرة"], c: 0 },
+            { q: "الرحلة جاءت بعد عام الحزن بهدف", a: ["التسلية والتثبيت", "التجارة", "الزواج", "الهجرة"], c: 0 },
+            { q: "ما اهم دلالة لربط المسجد الحرام بالمسجد الاقصى", a: ["بيان وحدة العقيدة وقدسية المسجد الاقصى", "الغاء مكانة مكة", "اثبات وجود طريق تجاري", "تحديد مواقيت الصلاة"], c: 0 },
+            { q: "المسجد الاقصى يقع في", a: ["مكة", "القدس", "المدينة", "الطائف"], c: 1 },
+            { q: "من نتائج رحلة الاسراء والمعراج", a: ["فرض الصلاة", "تحريم الزكاة", "فرض الصيام", "تحريم الحج"], c: 0 },
+            { q: "ما معنى كلمة اسراء لغويا", a: ["سير ليلا", "صعود نهارا", "هجرة", "سفر بحرا"], c: 0 },
+            { q: "ما معنى كلمة معراج لغويا", a: ["مكان الصعود او الصعود", "مكان النزول", "مكان الجلوس", "مكان النوم"], c: 0 },
+            { q: "ما الذي يميز هذه المعجزة", a: ["وقعت في ليلة واحدة", "وقعت خلال سنة كاملة", "كانت في النهار فقط", "كانت بعد الهجرة"], c: 0 },
+            { q: "من الاماكن المرتبطة بالاحداث", a: ["المسجد الحرام", "المسجد الاقصى", "السماوات", "جميع ما ذكر"], c: 3 },
+            { q: "الرسالة التربوية من فرض الصلاة في المعراج", a: ["الصلاة صلة وتقوية للروح", "الصلاة مجرد عادة اجتماعية", "الصلاة للاعياد فقط", "الصلاة للاغنياء فقط"], c: 0 },
+            { q: "كيف كان موقف كثير من الناس من الخبر", a: ["كذب بعضهم وشكك", "صدق الجميع مباشرة", "لم يسمع احد", "لم يهتم احد"], c: 0 },
+            { q: "من الالقاب المرتبطة بتصديق الحدث", a: ["الصديق", "الفاروق", "ذو النورين", "حبر الامة"], c: 0 },
+            { q: "ما الذي تعلمه المسلم من هذه الرحلة", a: ["الابتلاء قد يعقبه تكريم", "لا توجد صعوبات بالحياة", "الاعمال بلا قيمة", "الرحلات ممنوعة"], c: 0 },
+            { q: "من القيم المستفادة", a: ["الصبر والثبات", "الياس والتراجع", "الكسل", "القطيعة"], c: 0 },
+            { q: "المعراج كان من", a: ["المسجد الحرام", "المسجد الاقصى", "جبل احد", "بيت النبي"], c: 1 },
+            { q: "ما الذي يؤكد مكانة القدس في العقيدة", a: ["كونها محطة الاسراء والمعراج", "لوجود البحر فيها", "لانها مدينة تجارية", "لانها بعيدة"], c: 0 },
+            { q: "لماذا يقال ان الصلاة هدية المعراج", a: ["لانها فرضت في تلك الرحلة", "لانها بدات بعد الهجرة", "لانها كانت اختيارية", "لانها فقط لليهود"], c: 0 },
+            { q: "من اهداف هذه المعجزة في فهم كثير من العلماء", a: ["تثبيت النبي ﷺ وتقوية الامل", "جمع المال", "تغيير اللغة", "الغاء الدعوة"], c: 0 },
+            { q: "اذا سئلت عن الفرق بين الاسراء والمعراج", a: ["الاسراء انتقال ارضي والمعراج صعود سماوي", "الاسراء صعود والمعراج انتقال", "كلاهما هجرة", "كلاهما صيام"], c: 0 },
+            { q: "من الرسائل المهمة في هذه الرحلة", a: ["عدم فقدان الامل مع الشدة", "الهروب من المسؤولية", "ترك الصلاة", "العنف"], c: 0 },
+            { q: "كيف تصف مكانة المسجد الاقصى ضمن السياق", a: ["جزء اساسي من الايمان والهوية الدينية", "مكان عادي بلا قيمة", "مكان سياحي فقط", "مكان غير مرتبط"], c: 0 },
+        ];
+
+        /* ===== دوال مساعدة ===== */
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        /* ===== تحويل السؤال الى نسخة خيارات مخربطة مع حفظ الصحيح ===== */
+        function makeShuffledQuestion(qObj) {
+            const options = qObj.a.map((text, idx) => ({ text, isCorrect: idx === qObj.c }));
+            const mixed = shuffle(options);
+            const newCorrectIndex = mixed.findIndex(o => o.isCorrect);
+            return {
+                q: qObj.q,
+                a: mixed.map(o => o.text),
+                c: newCorrectIndex
+            };
+        }
+
+        /* ===== تجهيز اسئلة بدون تكرار (ترتيب عشوائي مرة واحدة) ===== */
+        let questions = [];
+        let index = 0;
+        let userAnswers = []; // رقم الخيار او null
+        let score = 0;
+
+        const elQ = document.getElementById("question");
+        const elA = document.getElementById("answers");
+        const elScore = document.getElementById("score");
+        const elTotal = document.getElementById("total");
+        const elCounter = document.getElementById("counter");
+        const elNote = document.getElementById("note");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        function init() {
+            // خلط ترتيب الاسئلة + تخبيص الخيارات لكل سؤال مرة واحدة
+            const mixedQuestions = shuffle(bank).map(makeShuffledQuestion);
+
+            questions = mixedQuestions;
+            index = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            score = 0;
+
+            elTotal.textContent = questions.length.toString();
+            updateUI();
+        }
+
+        function updateUI() {
+            const qObj = questions[index];
+
+            elCounter.textContent = "سؤال " + (index + 1) + " من " + questions.length;
+            elQ.textContent = qObj.q;
+
+            elA.innerHTML = "";
+            const saved = userAnswers[index];
+
+            qObj.a.forEach((text, i) => {
+                const btn = document.createElement("button");
+                btn.textContent = text;
+
+                if (saved !== null && saved === i) {
+                    btn.classList.add("selected");
+                }
+
+                btn.onclick = () => chooseAnswer(i);
+                elA.appendChild(btn);
+            });
+
+            prevBtn.disabled = (index === 0);
+            nextBtn.textContent = (index === questions.length - 1) ? "انهاء" : "التالي";
+
+            elScore.textContent = score.toString();
+
+            const answeredCount = userAnswers.filter(v => v !== null).length;
+            elNote.textContent = "تمت الاجابة عن " + answeredCount + " من " + questions.length + " سؤال";
+
+            paintIfAnswered();
+        }
+
+        function chooseAnswer(choice) {
+            const qObj = questions[index];
+            const prevAnswer = userAnswers[index];
+
+            // ازالة اثر الاجابة القديمة من النقاط
+            if (prevAnswer !== null) {
+                if (prevAnswer === qObj.c) score -= 1;
+            }
+
+            // حفظ الاجابة الجديدة
+            userAnswers[index] = choice;
+
+            // اضافة النقاط اذا صح
+            if (choice === qObj.c) score += 1;
+
+            // تلوين
+            const buttons = Array.from(elA.querySelectorAll("button"));
+            buttons.forEach((b, i) => {
+                b.classList.remove("selected", "correct", "wrong");
+                if (i === choice) b.classList.add("selected");
+            });
+
+            buttons[qObj.c].classList.add("correct");
+            if (choice !== qObj.c) {
+                buttons[choice].classList.add("wrong");
+            }
+
+            elScore.textContent = score.toString();
+            const answeredCount = userAnswers.filter(v => v !== null).length;
+            elNote.textContent = "تمت الاجابة عن " + answeredCount + " من " + questions.length + " سؤال";
+        }
+
+        function paintIfAnswered() {
+            const qObj = questions[index];
+            const saved = userAnswers[index];
+            if (saved === null) return;
+
+            const buttons = Array.from(elA.querySelectorAll("button"));
+            buttons[qObj.c].classList.add("correct");
+            if (saved !== qObj.c) {
+                buttons[saved].classList.add("wrong");
+            }
+        }
+
+        function nextQuestion() {
+            if (index === questions.length - 1) {
+                const answeredCount = userAnswers.filter(v => v !== null).length;
+                elNote.textContent = "انتهت اللعبة نتيجتك " + score + " من " + questions.length + " وتمت الاجابة عن " + answeredCount + " سؤال";
+                return;
+            }
+            index++;
+            updateUI();
+        }
+
+        function prevQuestion() {
+            if (index === 0) return;
+            index--;
+            updateUI();
+        }
+
+        function resetGame() {
+            init();
+        }
+
+        init();
+    </script>
+
+</body>
+</html>
