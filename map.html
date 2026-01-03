@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>محطة 3 – خريطة الإسراء والمعراج التفاعلية</title>
+
+  <style>
+    :root{
+      --bg:#070b16;
+      --border: rgba(255,255,255,.14);
+      --text:#e9eefc;
+      --muted:#a9b4d6;
+      --accent:#ffd43b;
+      --shadow: 0 18px 50px rgba(0,0,0,.55);
+      --panel: rgba(11,18,36,.90);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(1000px 600px at 15% 10%, rgba(116,167,255,.18), transparent 55%),
+        radial-gradient(900px 550px at 85% 20%, rgba(110,231,255,.12), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      font-family: system-ui, Segoe UI, Arial;
+      padding-top:70px;
+    }
+
+    /* ===== الشريط العلوي ===== */
+    .topBar{
+      position:fixed; top:0; left:0; right:0; z-index:999;
+      background:rgba(11,18,36,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topBarInner{
+      max-width:1200px; margin:auto;
+      padding:12px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .homeLink{
+      text-decoration:none;
+      font-weight:900; font-size:15px;
+      color:#071023;
+      background:linear-gradient(135deg,#ffe066,#ffd43b);
+      padding:8px 18px;
+      border-radius:999px;
+      box-shadow:0 8px 22px rgba(255,212,59,.35);
+      white-space:nowrap;
+    }
+    .topTitle{
+      font-weight:950;
+      color:var(--accent);
+      font-size:15px;
+      text-align:center;
+    }
+
+    /* ===== تخطيط الصفحة ===== */
+    .page{
+      max-width:1200px;
+      margin:auto;
+      padding:16px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:14px;
+      align-items:start;
+    }
+
+    /* ===== كرت الخريطة ===== */
+    .mapCard{
+      position:sticky;
+      top:86px;
+      border-radius:22px;
+      border:1px solid var(--border);
+      background:rgba(11,18,36,.88);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .map{
+      position:relative;
+      width:100%;
+      height: 74vh;
+      min-height: 520px;
+
+      /* ✅ ضع صورتك هنا (لازم تكون بالمشروع داخل assets) */
+      background-image: url("assets/isra-map.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .map::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(to bottom, rgba(7,11,22,.06), rgba(7,11,22,.26));
+      pointer-events:none;
+    }
+
+    .hint{
+      position:absolute;
+      top:12px; right:12px;
+      z-index:3;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(8px);
+      color:var(--muted);
+      padding:10px 12px;
+      border-radius:16px;
+      font-size:12.5px;
+      line-height:1.6;
+      max-width: 360px;
+    }
+    .hint b{color:var(--accent)}
+
+    /* ===== نقاط الضغط ===== */
+    .point{
+      position:absolute;
+      z-index:4;
+      width:46px; height:46px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:950;
+      color:#071023;
+      background:rgba(255,212,59,.97);
+      border:1px solid rgba(255,255,255,.25);
+      box-shadow: 0 16px 40px rgba(255,212,59,.20);
+      cursor:pointer;
+      transform: translate(-50%, -50%);
+      transition:.18s;
+      user-select:none;
+    }
+    .point:hover{ transform: translate(-50%, -50%) scale(1.07); }
+    .point.active{
+      outline: 3px solid rgba(255,212,59,.35);
+      box-shadow: 0 18px 55px rgba(255,212,59,.28);
+    }
+
+    /* ===== لوحة الشرح ===== */
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:22px;
+      box-shadow: var(--shadow);
+      padding:14px;
+    }
+    .panelTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .panelTitle{
+      font-weight:950;
+      color:var(--accent);
+      font-size:15px;
+    }
+    .navBtns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:none;
+      cursor:pointer;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:950;
+    }
+    .btnPrimary{
+      background:linear-gradient(135deg,#ffe066,#ffd43b);
+      color:#071023;
+    }
+    .btnGhost{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      color:var(--text);
+    }
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+
+    .card{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      padding:12px;
+      margin-top:10px;
+    }
+    .cardH{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:8px;
+      font-weight:950;
+      color:var(--text);
+    }
+    .badge{
+      width:34px; height:34px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--accent);
+      font-weight:950;
+    }
+    .desc{
+      color:var(--muted);
+      line-height:1.9;
+      font-size:14px;
+    }
+    .facts{
+      margin-top:10px;
+      display:grid;
+      gap:8px;
+    }
+    .fact{
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:10px 12px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+    .fact b{color:var(--text)}
+
+    /* ===== متجاوب للهاتف ===== */
+    @media(max-width:980px){
+      .page{ grid-template-columns: 1fr; }
+      .mapCard{ position:relative; top:auto; }
+      .map{ height: 56vh; min-height: 460px; }
+    }
+    @media(max-width:600px){
+      .map{ height: 52vh; min-height: 420px; }
+      .point{ width:40px; height:40px; border-radius:16px; }
+      .hint{ max-width: 92%; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topBar">
+    <div class="topBarInner">
+      <a class="homeLink" href="index.html">الصفحة الرئيسية</a>
+      <div class="topTitle">محطة 3 – خريطة تفاعلية (اضغط على النقاط)</div>
+      <div style="width:94px"></div>
+    </div>
+  </div>
+
+  <div class="page">
+    <!-- الخريطة -->
+    <div class="mapCard">
+      <div class="map" id="map">
+        <div class="hint">
+          <b>طريقة الاستخدام</b><br>
+          اضغط على الأرقام على المسار الذهبي لعرض شرح المرحلة<br>
+          الهدف فهم المسافة والزمن وكيف تظهر المعجزة
+        </div>
+
+        <!-- ✅ نقاط مضبوطة على صورتك تقريبيا (على المسار الذهبي) -->
+        <!-- 1 عند الكعبة السفلية -->
+        <div class="point" data-step="1" style="left:26%; top:88%;">1</div>
+        <!-- 2 على الطريق الذهبي الصاعد -->
+        <div class="point" data-step="2" style="left:44%; top:83%;">2</div>
+        <!-- 3 قرب الكعبة الكبيرة (منتصف يسار) -->
+        <div class="point" data-step="3" style="left:22%; top:66%;">3</div>
+        <!-- 4 قرب الأقصى (منتصف يمين) -->
+        <div class="point" data-step="4" style="left:71%; top:61%;">4</div>
+        <!-- 5 بداية الصعود (أسفل عمود النور) -->
+        <div class="point" data-step="5" style="left:58%; top:50%;">5</div>
+        <!-- 6 منتصف الصعود -->
+        <div class="point" data-step="6" style="left:60%; top:34%;">6</div>
+        <!-- 7 قرب أعلى الغيوم قبل الشجرة -->
+        <div class="point" data-step="7" style="left:60%; top:16%;">7</div>
+        <!-- 8 عند أعلى المسار (قرب الشجرة) -->
+        <div class="point" data-step="8" style="left:60%; top:7%;">8</div>
+      </div>
+    </div>
+
+    <!-- الشرح -->
+    <div class="panel">
+      <div class="panelTop">
+        <div class="panelTitle">شرح المرحلة</div>
+        <div class="navBtns">
+          <button class="btn btnGhost" id="prevBtn">السابق</button>
+          <button class="btn btnPrimary" id="nextBtn">التالي</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardH">
+          <div class="badge" id="badge">1</div>
+          <div id="title">...</div>
+        </div>
+
+        <div class="desc" id="desc"></div>
+        <div class="facts" id="facts"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ ترتيب صحيح يمشي مع الصورة: مكة/الكعبة -> طريق الإسراء -> القدس/الأقصى -> المعراج -> أعلى المسار
+    const steps = [
+      {
+        id: 1,
+        title: "المسجد الحرام – مكة (بداية الرحلة)",
+        desc: "نبدأ من مكان حقيقي واضح. تثبيت نقطة البداية يساعد الطالب يفهم أن الحدث مرتبط بجغرافيا واقعية قبل الحديث عن المعجزة.",
+        facts: [
+          "📍 <b>المكان:</b> مكة المكرمة",
+          "🧠 <b>هدف:</b> تصور البداية على الخريطة"
+        ]
+      },
+      {
+        id: 2,
+        title: "الإسراء – الانطلاق ليلا (المسار الأرضي يبدأ)",
+        desc: "الإسراء يعني السير ليلا. هنا يربط الطالب معنى الكلمة بالحدث: رحلة حصلت في ليلة واحدة.",
+        facts: [
+          "🌙 <b>الزمن:</b> ليلة واحدة",
+          "💡 <b>فكرة:</b> فهم المصطلح يسهل فهم القصة"
+        ]
+      },
+      {
+        id: 3,
+        title: "المسافة مكة → القدس (جغرافيا + زمن)",
+        desc: "هذه نقطة الربط الأقوى: المسافة كبيرة على الواقع، والزمن الطبيعي لقطعها قديما طويل، لكن الإسراء وقع في ليلة واحدة بقدرة الله وهذا يوضح معنى المعجزة.",
+        facts: [
+          "🗺️ <b>مسافة تقريبية:</b> نحو 1200 كم",
+          "⏳ <b>زمن السفر قديما:</b> أسابيع طويلة",
+          "⚡ <b>في الإسراء:</b> في ليلة واحدة"
+        ]
+      },
+      {
+        id: 4,
+        title: "المسجد الأقصى – القدس (نهاية الإسراء)",
+        desc: "الوصول إلى المسجد الأقصى يربط مكة بالقدس ربطا عقائديا وتربويا، ويجعل الطالب يفهم أن القدس جزء أساسي من مسار الحدث.",
+        facts: [
+          "📍 <b>المكان:</b> القدس",
+          "🧭 <b>رسالة:</b> الربط بين المسجدين يحمل معنى عميقا"
+        ]
+      },
+      {
+        id: 5,
+        title: "تمهيد المعراج من الأقصى",
+        desc: "هذه محطة انتقالية بين مسار أرضي ومسار سماوي. التدرج يساعد الطالب يميّز بين مرحلتين: الإسراء على الأرض ثم المعراج إلى السماء.",
+        facts: [
+          "🌍 <b>قبل:</b> انتقال أرضي",
+          "🌌 <b>بعد:</b> انتقال سماوي"
+        ]
+      },
+      {
+        id: 6,
+        title: "بداية العروج (المعراج)",
+        desc: "هنا يبدأ المعراج: انتقال إلى السماوات بإذن الله. الفكرة التعليمية أن الحدث ليس سفرا عاديا بل معجزة تتجاوز حدود المكان والزمان.",
+        facts: [
+          "✨ <b>الفكرة:</b> قدرة الله فوق قوانين الطبيعة",
+          "🧠 <b>تركيز:</b> فهم المعنى بدل تفاصيل كثيرة"
+        ]
+      },
+      {
+        id: 7,
+        title: "العروج في السماوات (تكريم وتثبيت)",
+        desc: "بدل الدخول في تفاصيل طويلة، نركز على الرسالة: تكريم وتثبيت بعد الشدة، وأن الرحلة تحمل معنى أمل وطمأنينة.",
+        facts: [
+          "💛 <b>دلالة:</b> تثبيت بعد الشدة",
+          "🧭 <b>قيمة:</b> الأمل والطمأنينة"
+        ]
+      },
+      {
+        id: 8,
+        title: "فرض الصلاة – هدية المعراج",
+        desc: "تختم الرحلة بهدية عظيمة: فرض الصلاة. تربويا نفهمها كصلة يومية تعطي قوة ومعنى، ثم كانت العودة في نفس الليلة.",
+        facts: [
+          "🕌 <b>النتيجة:</b> فرض الصلاة",
+          "💡 <b>معنى:</b> الصلاة صلة وقوة وليست مجرد واجب"
+        ]
+      }
+    ];
+
+    const points = Array.from(document.querySelectorAll(".point"));
+    const badge = document.getElementById("badge");
+    const title = document.getElementById("title");
+    const desc  = document.getElementById("desc");
+    const facts = document.getElementById("facts");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    let current = 1;
+
+    function setActive(stepId){
+      points.forEach(p => p.classList.toggle("active", Number(p.dataset.step) === stepId));
+    }
+
+    function render(stepId){
+      const s = steps.find(x=>x.id===stepId) || steps[0];
+      current = s.id;
+
+      setActive(current);
+
+      badge.textContent = s.id;
+      title.textContent = s.title;
+      desc.textContent  = s.desc;
+
+      facts.innerHTML = "";
+      s.facts.forEach(f=>{
+        const div = document.createElement("div");
+        div.className = "fact";
+        div.innerHTML = f;
+        facts.appendChild(div);
+      });
+
+      prevBtn.disabled = (current === 1);
+      nextBtn.disabled = (current === steps.length);
+    }
+
+    points.forEach(p=>{
+      p.addEventListener("click", ()=> render(Number(p.dataset.step)));
+    });
+
+    prevBtn.addEventListener("click", ()=> render(Math.max(1, current-1)));
+    nextBtn.addEventListener("click", ()=> render(Math.min(steps.length, current+1)));
+
+    render(1);
+  </script>
+</body>
+</html>
