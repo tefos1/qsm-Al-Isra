@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>محطة 3 – خريطة السحب والإفلات</title>
+
+    <style>
+        :root {
+            --bg: #070b16;
+            --border: rgba(255,255,255,.14);
+            --text: #e9eefc;
+            --muted: #a9b4d6;
+            --accent: #ffd43b;
+            --ok: #2ecc71;
+            --bad: #ff6b6b;
+            --shadow: 0 18px 50px rgba(0,0,0,.55);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(1000px 600px at 15% 10%, rgba(116,167,255,.18), transparent 55%), radial-gradient(900px 550px at 85% 20%, rgba(110,231,255,.12), transparent 55%), var(--bg);
+            color: var(--text);
+            font-family: system-ui,Segoe UI,Arial;
+            padding-top: 70px;
+            /* مساحة للمخزن السفلي الثابت */
+            padding-bottom: 210px;
+        }
+
+        /* ===== الشريط العلوي ===== */
+        .topBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: rgba(11,18,36,.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topBarInner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .homeLink {
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 15px;
+            color: #071023;
+            background: linear-gradient(135deg,#ffe066,#ffd43b);
+            padding: 8px 18px;
+            border-radius: 999px;
+            box-shadow: 0 8px 22px rgba(255,212,59,.35);
+        }
+
+        .topTitle {
+            font-weight: 950;
+            color: var(--accent);
+            font-size: 15px;
+        }
+
+        /* ===== تخطيط ===== */
+        .wrap {
+            max-width: 1200px;
+            margin: auto;
+            padding: 16px;
+            display: grid;
+            gap: 14px;
+        }
+
+        /* شريط معلومات */
+        .infoBar {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 18px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+            .infoBar .hint {
+                color: var(--muted);
+                font-size: 13px;
+                line-height: 1.7
+            }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-weight: 950;
+        }
+
+        .btnPrimary {
+            background: linear-gradient(135deg,#ffe066,#ffd43b);
+            color: #071023;
+        }
+
+        .btnGhost {
+            background: rgba(255,255,255,.08);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,.16);
+        }
+
+        .result {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        /* ===== الخريطة ===== */
+        .map {
+            position: relative;
+            height: min(620px, 72vh);
+            border-radius: 22px;
+            background: radial-gradient(900px 480px at 20% 30%, rgba(255,212,59,.10), transparent 60%), radial-gradient(700px 420px at 80% 35%, rgba(110,231,255,.10), transparent 60%), rgba(11,18,36,.88);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .mapLabel {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.12);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        /* مناطق الإسقاط: رقم فقط */
+        .dropzone {
+            position: absolute;
+            width: 86px;
+            height: 86px;
+            border-radius: 22px;
+            border: 1px dashed rgba(255,255,255,.26);
+            background: rgba(255,255,255,.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .15s;
+        }
+
+            .dropzone.over {
+                background: rgba(255,212,59,.10);
+                border-color: rgba(255,212,59,.65);
+            }
+
+        .num {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 950;
+            font-size: 18px;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.14);
+            color: var(--accent);
+        }
+
+        /* صورة موضوعة فوق الرقم */
+        .placed {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+            .placed img {
+                width: 58px;
+                height: 58px;
+                border-radius: 18px;
+                border: 1px solid rgba(255,255,255,.16);
+                background: rgba(255,255,255,.06);
+                object-fit: cover;
+                box-shadow: 0 12px 28px rgba(0,0,0,.35);
+            }
+
+        /* صح/خطأ */
+        .dropzone.good {
+            border-style: solid;
+            border-color: rgba(46,204,113,.7);
+            background: rgba(46,204,113,.08)
+        }
+
+        .dropzone.bad {
+            border-style: solid;
+            border-color: rgba(255,107,107,.75);
+            background: rgba(255,107,107,.08)
+        }
+
+        /* ===== المخزن السفلي (ثابت + سكرول) ===== */
+        .tray {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 998;
+            background: rgba(11,18,36,.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+            box-shadow: 0 -18px 50px rgba(0,0,0,.55);
+        }
+
+        .trayInner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 12px 16px 14px;
+        }
+
+        .trayTop {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .trayTitle {
+            font-weight: 950;
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        .trayHint {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* شبكة قريبة + تمرير */
+        .items {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 168px;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+            .items::-webkit-scrollbar {
+                height: 10px
+            }
+
+            .items::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,.14);
+                border-radius: 999px
+            }
+
+            .items::-webkit-scrollbar-track {
+                background: rgba(255,255,255,.06);
+                border-radius: 999px
+            }
+
+        .item {
+            scroll-snap-align: start;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(255,255,255,.05);
+            cursor: grab;
+            user-select: none;
+            transition: .12s;
+        }
+
+            .item:active {
+                cursor: grabbing;
+                transform: scale(.99)
+            }
+
+            .item img {
+                width: 46px;
+                height: 46px;
+                border-radius: 14px;
+                border: 1px solid rgba(255,255,255,.14);
+                background: rgba(255,255,255,.06);
+                object-fit: cover;
+            }
+
+            .item .t {
+                font-weight: 950;
+                font-size: 13px;
+                line-height: 1.2;
+            }
+
+            .item .s {
+                color: var(--muted);
+                font-size: 12px;
+                margin-top: 2px;
+                line-height: 1.2;
+            }
+
+        /* ملاءمة الهاتف */
+        @media(max-width:600px) {
+            body {
+                padding-bottom: 240px;
+            }
+
+            .map {
+                height: min(720px, 70vh);
+            }
+
+            .dropzone {
+                width: 78px;
+                height: 78px;
+                border-radius: 20px;
+            }
+
+            .placed img {
+                width: 54px;
+                height: 54px;
+                border-radius: 16px;
+            }
+
+            .items {
+                grid-auto-columns: 150px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topBar">
+        <div class="topBarInner">
+            <a class="homeLink" href="index.html">الصفحة الرئيسية</a>
+            <div class="topTitle">محطة 3 – خريطة السحب والإفلات</div>
+        </div>
+    </div>
+
+    <div class="wrap">
+
+        <div class="infoBar">
+            <div class="hint">
+                اسحب كل صورة من المخزن السفلي وضعها على الرقم الصحيح في الخريطة
+                <br>
+                بعد الانتهاء اضغط تحقق لمعرفة نتيجتك
+            </div>
+
+            <div class="controls">
+                <button class="btn btnPrimary" id="checkBtn">تحقق</button>
+                <button class="btn btnGhost" id="resetBtn">اعادة</button>
+            </div>
+
+            <div class="result" id="resultText">النتيجة: 0 / 10</div>
+        </div>
+
+        <div class="map" id="map">
+            <div class="mapLabel">ضع الصور على الأرقام</div>
+
+            <!-- ارقام فقط -->
+            <div class="dropzone" data-zone="1" style="top:80px; right:40px;">
+                <div class="num">1</div>
+                <div class="placed" data-placed="1"></div>
+            </div>
+
+            <div class="dropzone" data-zone="2" style="top:190px; right:230px;">
+                <div class="num">2</div>
+                <div class="placed" data-placed="2"></div>
+            </div>
+
+            <div class="dropzone" data-zone="3" style="top:120px; left:60px;">
+                <div class="num">3</div>
+                <div class="placed" data-placed="3"></div>
+            </div>
+
+            <div class="dropzone" data-zone="4" style="top:280px; left:260px;">
+                <div class="num">4</div>
+                <div class="placed" data-placed="4"></div>
+            </div>
+
+            <div class="dropzone" data-zone="5" style="top:340px; right:60px;">
+                <div class="num">5</div>
+                <div class="placed" data-placed="5"></div>
+            </div>
+
+            <div class="dropzone" data-zone="6" style="top:450px; right:290px;">
+                <div class="num">6</div>
+                <div class="placed" data-placed="6"></div>
+            </div>
+
+            <div class="dropzone" data-zone="7" style="top:520px; left:70px;">
+                <div class="num">7</div>
+                <div class="placed" data-placed="7"></div>
+            </div>
+
+            <div class="dropzone" data-zone="8" style="top:430px; left:380px;">
+                <div class="num">8</div>
+                <div class="placed" data-placed="8"></div>
+            </div>
+
+            <div class="dropzone" data-zone="9" style="top:520px; right:70px;">
+                <div class="num">9</div>
+                <div class="placed" data-placed="9"></div>
+            </div>
+
+            <div class="dropzone" data-zone="10" style="top:540px; left:330px;">
+                <div class="num">10</div>
+                <div class="placed" data-placed="10"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- المخزن السفلي الثابت -->
+    <div class="tray">
+        <div class="trayInner">
+            <div class="trayTop">
+                <div class="trayTitle">المخزن السفلي – اسحب الصور</div>
+                <div class="trayHint">اسحب واسقط ✅ ويمكنك التمرير يمين ويسار لرؤية كل الصور</div>
+            </div>
+            <div class="items" id="items"></div>
+        </div>
+    </div>
+
+    <script>
+        /* ===== صور SVG بسيطة بدون ملفات خارجية ===== */
+        function svgIcon(emoji) {
+            const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96">
+        <rect width="96" height="96" rx="22" fill="rgba(255,255,255,0.06)"/>
+        <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle"
+          font-size="46">${emoji}</text>
+      </svg>`;
+            return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+        }
+
+        /* ===== الاحداث (تقدر تزيد عددها وتزيد معها dropzones) ===== */
+        const events = [
+            { id: "e1", title: "المسجد الحرام", sub: "بداية الرحلة", img: svgIcon("🕋"), correctZone: 1 },
+            { id: "e2", title: "البراق", sub: "وسيلة الاسراء", img: svgIcon("🐎"), correctZone: 2 },
+            { id: "e3", title: "المسجد الاقصى", sub: "نهاية الاسراء", img: svgIcon("🕌"), correctZone: 3 },
+            { id: "e4", title: "الصلاة بالانبياء", sub: "في الاقصى", img: svgIcon("🤲"), correctZone: 4 },
+            { id: "e5", title: "المعراج", sub: "الصعود", img: svgIcon("⬆️"), correctZone: 5 },
+            { id: "e6", title: "لقاء انبياء", sub: "في السماوات", img: svgIcon("✨"), correctZone: 6 },
+            { id: "e7", title: "سدرة المنتهى", sub: "محطة عظيمة", img: svgIcon("🌿"), correctZone: 7 },
+            { id: "e8", title: "فرض الصلاة", sub: "هدية", img: svgIcon("🕌"), correctZone: 8 },
+            { id: "e9", title: "العودة", sub: "في ليلة", img: svgIcon("🌙"), correctZone: 9 },
+            { id: "e10", title: "التصديق", sub: "ردود الفعل", img: svgIcon("🧠"), correctZone: 10 },
+        ];
+
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function getEventById(id) { return events.find(x => x.id === id); }
+
+        /*
+         placements:
+          - zoneToEvent: { "1": "e3", ... }
+          - eventToZone: { "e3": "1", ... }
+          - availableIds: الصور الموجودة حاليا بالمخزن
+        */
+        const zoneToEvent = {};
+        const eventToZone = {};
+        let availableIds = [];
+
+        const itemsBox = document.getElementById("items");
+        const resultText = document.getElementById("resultText");
+        const zones = Array.from(document.querySelectorAll(".dropzone"));
+
+        function renderItems() {
+            itemsBox.innerHTML = "";
+            const ids = shuffle(availableIds);
+
+            ids.forEach(id => {
+                const ev = getEventById(id);
+                const div = document.createElement("div");
+                div.className = "item";
+                div.draggable = true;
+                div.dataset.id = ev.id;
+
+                div.innerHTML = `
+          <img src="${ev.img}" alt="${ev.title}">
+          <div>
+            <div class="t">${ev.title}</div>
+            <div class="s">${ev.sub}</div>
+          </div>
+        `;
+
+                div.addEventListener("dragstart", (e) => {
+                    e.dataTransfer.setData("text/plain", ev.id);
+                    e.dataTransfer.effectAllowed = "move";
+                });
+
+                itemsBox.appendChild(div);
+            });
+        }
+
+        function setPlaced(zoneNum, evId) {
+            const ev = getEventById(evId);
+            const placedBox = document.querySelector(`.placed[data-placed="${zoneNum}"]`);
+            if (placedBox) {
+                placedBox.innerHTML = `<img src="${ev.img}" alt="${ev.title}">`;
+            }
+        }
+
+        function clearPlaced(zoneNum) {
+            const placedBox = document.querySelector(`.placed[data-placed="${zoneNum}"]`);
+            if (placedBox) placedBox.innerHTML = "";
+        }
+
+        /* ===== وضع صورة على رقم ===== */
+        function placeEvent(zoneNum, eventId) {
+            // اذا الصورة كانت موضوعة برقم سابق -> احذفها من هناك
+            if (eventToZone[eventId]) {
+                const oldZone = eventToZone[eventId];
+                delete zoneToEvent[oldZone];
+                delete eventToZone[eventId];
+                clearPlaced(oldZone);
+            }
+
+            // اذا الزون فيه صورة قديمة -> رجع القديمة للمخزن
+            if (zoneToEvent[zoneNum]) {
+                const oldEvent = zoneToEvent[zoneNum];
+                delete eventToZone[oldEvent];
+                // ارجعها للمخزن
+                availableIds.push(oldEvent);
+            }
+
+            // ضع الجديدة بالزون
+            zoneToEvent[zoneNum] = eventId;
+            eventToZone[eventId] = zoneNum;
+            setPlaced(zoneNum, eventId);
+
+            // احذف الجديدة من المخزن (تختفي)
+            availableIds = availableIds.filter(x => x !== eventId);
+
+            // ازالة علامات صح/خطأ القديمة
+            zones.forEach(z => z.classList.remove("good", "bad"));
+            updateResultPreview();
+            renderItems();
+        }
+
+        /* ===== مناطق الاسقاط ===== */
+        function setupZones() {
+            zones.forEach(z => {
+                z.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                    z.classList.add("over");
+                });
+                z.addEventListener("dragleave", () => {
+                    z.classList.remove("over");
+                });
+                z.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    z.classList.remove("over");
+
+                    const zoneNum = z.dataset.zone;
+                    const eventId = e.dataTransfer.getData("text/plain");
+                    if (!eventId) return;
+
+                    placeEvent(zoneNum, eventId);
+                });
+            });
+        }
+
+        function updateResultPreview() {
+            const total = events.length;
+            let correct = 0;
+
+            events.forEach(ev => {
+                const z = eventToZone[ev.id];
+                if (z && Number(z) === ev.correctZone) correct++;
+            });
+
+            resultText.textContent = "النتيجة: " + correct + " / " + total;
+        }
+
+        function checkAnswers() {
+            zones.forEach(z => z.classList.remove("good", "bad"));
+
+            let correct = 0;
+            const total = events.length;
+
+            zones.forEach(z => {
+                const zoneNum = Number(z.dataset.zone);
+                const evId = zoneToEvent[String(zoneNum)];
+                if (!evId) {
+                    z.classList.add("bad");
+                    return;
+                }
+                const ev = getEventById(evId);
+                if (ev && ev.correctZone === zoneNum) {
+                    z.classList.add("good");
+                    correct++;
+                } else {
+                    z.classList.add("bad");
+                }
+            });
+
+            resultText.textContent = "النتيجة: " + correct + " / " + total;
+        }
+
+        function resetAll() {
+            // رجع كل الصور للمخزن
+            for (const k in zoneToEvent) delete zoneToEvent[k];
+            for (const k in eventToZone) delete eventToZone[k];
+
+            document.querySelectorAll(".placed").forEach(p => p.innerHTML = "");
+            zones.forEach(z => z.classList.remove("good", "bad", "over"));
+
+            availableIds = events.map(e => e.id);
+            renderItems();
+            resultText.textContent = "النتيجة: 0 / " + events.length;
+        }
+
+        document.getElementById("checkBtn").addEventListener("click", checkAnswers);
+        document.getElementById("resetBtn").addEventListener("click", resetAll);
+
+        /* تشغيل */
+        availableIds = events.map(e => e.id);
+        renderItems();
+        setupZones();
+        resultText.textContent = "النتيجة: 0 / " + events.length;
+    </script>
+
+</body>
+</html>
