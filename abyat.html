@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>محطة 4 – أبيات شعر | الإسراء والمعراج</title>
+
+    <style>
+        :root {
+            --bg: #070b16;
+            --panel: rgba(11,18,36,.90);
+            --border: rgba(255,255,255,.14);
+            --text: #e9eefc;
+            --muted: #a9b4d6;
+            --accent: #ffd43b;
+            --shadow: 0 18px 50px rgba(0,0,0,.55);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(1000px 600px at 15% 10%, rgba(116,167,255,.18), transparent 55%), radial-gradient(900px 550px at 85% 20%, rgba(110,231,255,.12), transparent 55%), var(--bg);
+            color: var(--text);
+            font-family: system-ui, Segoe UI, Arial;
+            padding-top: 70px;
+            line-height: 1.9;
+        }
+
+        /* ===== Top Bar ===== */
+        .topBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: rgba(11,18,36,.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topBarInner {
+            max-width: 1100px;
+            margin: auto;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .homeLink {
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 15px;
+            color: #071023;
+            background: linear-gradient(135deg,#ffe066,#ffd43b);
+            padding: 8px 18px;
+            border-radius: 999px;
+            box-shadow: 0 8px 22px rgba(255,212,59,.35);
+            white-space: nowrap;
+        }
+
+        .topTitle {
+            font-weight: 950;
+            color: var(--accent);
+            font-size: 15px;
+            text-align: center;
+        }
+
+        /* ===== Page ===== */
+        .wrap {
+            max-width: 1100px;
+            margin: auto;
+            padding: 18px 16px 26px;
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            padding: 16px;
+            overflow: hidden;
+        }
+
+        .hero {
+            position: relative;
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: radial-gradient(900px 300px at 20% 0%, rgba(255,212,59,.14), transparent 60%), radial-gradient(700px 300px at 80% 20%, rgba(110,231,255,.10), transparent 60%), rgba(255,255,255,.05);
+            margin-bottom: 14px;
+        }
+
+            .hero h1 {
+                font-size: 20px;
+                margin-bottom: 6px;
+                color: var(--accent);
+                font-weight: 950;
+            }
+
+            .hero p {
+                color: var(--muted);
+                font-size: 14px;
+            }
+
+        /* ===== Poem ===== */
+        .poem {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .bayt {
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(0,0,0,.18);
+            border-radius: 18px;
+            padding: 12px 14px;
+            font-size: 16px;
+        }
+
+            .bayt span {
+                display: block;
+                color: var(--text);
+                font-weight: 800;
+            }
+
+        /* ===== Side notes ===== */
+        .noteTitle {
+            color: var(--accent);
+            font-weight: 950;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .note {
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.05);
+            border-radius: 18px;
+            padding: 12px 14px;
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+            .note b {
+                color: var(--text);
+            }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .chip {
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(255,255,255,.06);
+            border-radius: 999px;
+            padding: 8px 12px;
+            color: var(--text);
+            font-weight: 900;
+            font-size: 13px;
+        }
+
+        /* ===== Responsive ===== */
+        @media(max-width:980px) {
+            .wrap {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:600px) {
+            .bayt {
+                font-size: 15px;
+            }
+
+            .hero h1 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topBar">
+        <div class="topBarInner">
+            <a class="homeLink" href="index.html">الصفحة الرئيسية</a>
+            <div class="topTitle">محطة 4 – أبيات شعر</div>
+            <div style="width:94px"></div>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <!-- ===== Poem Card ===== -->
+        <div class="card">
+            <div class="hero">
+                <h1>أبيات عن الإسراء والمعراج</h1>
+                <p>قصيدة قصيرة تربط المعنى بالإيمان وتبرز فكرة المعجزة والرحمة وفرض الصلاة</p>
+            </div>
+
+            <div class="poem">
+                <div class="bayt"><span>في ليلةٍ سَرَتِ البشائرُ نورَها</span><span>وسرى الهدى في أقدسِ الأزمنه</span></div>
+                <div class="bayt"><span>لبّى النبيُّ نداءَ ربٍّ قادرٍ</span><span>فانقادتِ الآفاقُ طوعَ مشيئه</span></div>
+                <div class="bayt"><span>من بيتِ ربٍّ في المسجد الحرامِ مسيرهُ</span><span>حتى الأقصى مهوى القلوبِ ومأمنه</span></div>
+                <div class="bayt"><span>فخطا هناكَ بخشعةٍ وسكينةٍ</span><span>وصلّى إمامًا جامعًا للأمّه</span></div>
+                <div class="bayt"><span>ثم ارتقى المختارُ فوقَ سماواتٍ</span><span>تتوالى الآياتُ فيهِ مبيّنه</span></div>
+                <div class="bayt"><span>يلقى الكرامَ من النبيّينَ صفًا</span><span>تحيا اللقاءُ وتسمو المودّه</span></div>
+                <div class="bayt"><span>وعندَ سدرةِ منتهى الأرواحِ قد</span><span>بلغَ القربَ الذي لا يُدركه</span></div>
+                <div class="bayt"><span>ففُرضتِ الصلواتُ خمسًا رحمةً</span><span>عهدًا يضيءُ الدربَ طولَ الأزمنه</span></div>
+                <div class="bayt"><span>يا أمةَ المختارِ هذا درسُنا</span><span>من بعدِ ضيقٍ يولدُ الفرجُ سنه</span></div>
+                <div class="bayt"><span>فاثبتْ على نهجِ الصلاةِ فإنّها</span><span>صلةُ القلوبِ بربّها والجنّه</span></div>
+            </div>
+        </div>
+
+        <!-- ===== Notes Card ===== -->
+        <div class="card">
+            <div class="noteTitle">مفاتيح فهم الأبيات</div>
+
+            <div class="note">
+                <b>فكرة المعجزة</b><br>
+                الأبيات تركز على ان الرحلة حصلت في ليلة واحدة وهذا يوضح قدرة الله فوق قوانين المكان والزمان
+            </div>
+
+            <div class="note">
+                <b>الربط بين مكة والقدس</b><br>
+                يظهر ان المسجد الاقصى جزء اساسي من مسار الايمان وليس مجرد محطة تاريخية
+            </div>
+
+            <div class="note">
+                <b>فرض الصلاة</b><br>
+                النهاية تربط المعراج بهدية عظيمة وهي الصلاة باعتبارها صلة يومية تعطي معنى وثبات
+            </div>
+
+            <div class="chips">
+                <div class="chip">معنى المعجزة</div>
+                <div class="chip">مكة والقدس</div>
+                <div class="chip">القيم والرسائل</div>
+                <div class="chip">فرض الصلاة</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
