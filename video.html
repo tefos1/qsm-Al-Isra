@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>فيديو الإسراء والمعراج</title>
+
+  <style>
+    :root{
+      --bg:#070b16;
+      --panel: rgba(11,18,36,.95);
+      --border: rgba(255,255,255,.14);
+      --text:#e9eefc;
+      --muted:#a9b4d6;
+      --accent:#ffd43b;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--text);
+      font-family:system-ui, Arial;
+      padding-top:70px;
+    }
+
+    /* top bar */
+    .topBar{
+      position:fixed;
+      top:0; left:0; right:0;
+      background:rgba(11,18,36,.92);
+      border-bottom:1px solid var(--border);
+      z-index:999;
+    }
+    .topBarInner{
+      max-width:1000px;
+      margin:auto;
+      padding:12px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .homeLink{
+      background:linear-gradient(135deg,#ffe066,#ffd43b);
+      color:#071023;
+      text-decoration:none;
+      padding:8px 18px;
+      border-radius:999px;
+      font-weight:900;
+    }
+    .title{
+      color:var(--accent);
+      font-weight:900;
+      font-size:15px;
+    }
+
+    /* content */
+    .wrap{
+      max-width:1000px;
+      margin:auto;
+      padding:20px 16px;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:16px;
+    }
+
+    h1{
+      font-size:20px;
+      margin-bottom:10px;
+      color:var(--accent);
+    }
+
+    p{
+      color:var(--muted);
+      margin-bottom:14px;
+      line-height:1.8;
+      font-size:14px;
+    }
+
+    /* responsive video */
+    .videoBox{
+      position:relative;
+      width:100%;
+      padding-top:56.25%; /* 16:9 */
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.14);
+      background:#000;
+    }
+    .videoBox iframe{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topBar">
+    <div class="topBarInner">
+      <a href="index.html" class="homeLink">الصفحة الرئيسية</a>
+      <div class="title">فيديو الإسراء والمعراج</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h1>رحلة الإسراء والمعراج</h1>
+      <p>
+        فيديو يشرح أحداث الإسراء والمعراج بشكل مبسط
+        ويربط بين المكان والزمان ومعنى المعجزة
+      </p>
+
+      <div class="videoBox">
+        <iframe
+          src="https://www.youtube.com/embed/HS0kDeF7OIQ"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
